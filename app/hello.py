@@ -3,9 +3,12 @@
 '''
 所有Flask程序都必须创建一个程序实例。
 Flask类的构造函数只有一个必须指定的参数，即程序主模块或包的名字。
+将bootstrap从flask.ext命名空间导入。
 '''
+from flask_bootstrap import Bootstrap
 from flask import Flask,render_template
 app = Flask(__name__)
+bootstrap = Bootstrap(app)
 
 '''
 在Flask程序中定义路由最简便的方式，是使用程序实例提供的app.route修饰器，把修饰的函数注册为路由。
@@ -31,6 +34,14 @@ def user(name):
     '''
     return render_template('user.html',name=name)
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'),404
+
+
+@app.errorhandler(500)
+def internal_server_error(e):
+    return render_template('500.html'),500
 
 '''
 程序实例用run方法启动Flask集成的开发Web服务器
