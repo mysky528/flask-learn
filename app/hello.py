@@ -7,20 +7,30 @@ Flask类的构造函数只有一个必须指定的参数，即程序主模块或
 '''
 from flask_bootstrap import Bootstrap
 from flask import Flask,render_template
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import Required
+
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
+app.config['SECRET_KEY'] = 'hard to guess string'
 
 '''
 在Flask程序中定义路由最简便的方式，是使用程序实例提供的app.route修饰器，把修饰的函数注册为路由。
 index()函数称为视图函数。视图函数返回的响应可以是包含HTML的简单字符串，也可以是复杂的表单。
 '''
-@app.route('/')
+@app.route('/',methods=['GET','POST'])
 def index():
     #return '<h1>Hello World</h1>'
+    name = None
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        form.name.data = ''
     '''
     使用模版
     '''
-    return render_template('index.html')
+    return render_template('index.html',form=form,name=name)
 
 
 '''
@@ -42,6 +52,15 @@ def page_not_found(e):
 @app.errorhandler(500)
 def internal_server_error(e):
     return render_template('500.html'),500
+
+
+'''
+定义表单类
+'''
+class NameForm(FlaskForm):
+    name = StringField('What is your name?',validators=[Required()])
+    submit = SubmitField('Submit')
+
 
 '''
 程序实例用run方法启动Flask集成的开发Web服务器
